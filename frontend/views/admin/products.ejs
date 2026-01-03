@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Management - Foodie Delights</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1>Products Management</h1>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="admin-nav">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/products" class="active">Products</a></li>
+                    <li><a href="/admin/orders">Orders</a></li>
+                </ul>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2>All Products</h2>
+            <a href="/admin/products/add" class="btn">+ Add New Product</a>
+        </div>
+
+        <div class="filter-bar">
+            <label>Filter by Category:</label>
+            <select onchange="window.location.href='/admin/products?category=' + this.value">
+                <option value="all" <%= selectedCategory === 'all' ? 'selected' : '' %>>All Categories</option>
+                <option value="pizza" <%= selectedCategory === 'pizza' ? 'selected' : '' %>>Pizza</option>
+                <option value="sushi" <%= selectedCategory === 'sushi' ? 'selected' : '' %>>Sushi</option>
+                <option value="desserts" <%= selectedCategory === 'desserts' ? 'selected' : '' %>>Desserts</option>
+                <option value="beverages" <%= selectedCategory === 'beverages' ? 'selected' : '' %>>Beverages</option>
+                <option value="burgers" <%= selectedCategory === 'burgers' ? 'selected' : '' %>>Burgers</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (products && products.length > 0) { %>
+                        <% products.forEach(product => { %>
+                            <tr>
+                                <td><img src="<%= product.imageUrl %>" alt="<%= product.name %>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;"></td>
+                                <td><strong><%= product.name %></strong></td>
+                                <td><%= product.category.charAt(0).toUpperCase() + product.category.slice(1) %></td>
+                                <td>$<%= product.price.toFixed(2) %></td>
+                                <td>
+                                    <% if (product.available) { %>
+                                        <span style="color: var(--success-color); font-weight: 600;">Available</span>
+                                    <% } else { %>
+                                        <span style="color: var(--danger-color); font-weight: 600;">Unavailable</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="/admin/products/edit/<%= product._id %>" class="btn btn-sm">Edit</a>
+                                        <form method="POST" action="/admin/products/delete/<%= product._id %>" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">No products found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+

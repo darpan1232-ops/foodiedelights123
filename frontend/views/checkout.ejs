@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Foodie Delights</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/header') %>
+
+<main>
+    <section class="page-header">
+        <h1>Checkout</h1>
+        <p>Please provide your delivery information</p>
+    </section>
+
+    <div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+        <form id="checkout-form" onsubmit="submitOrder(event)">
+            <div style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h2 style="margin-bottom: 1.5rem;">Delivery Information</h2>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="customerName" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Full Name *</label>
+                    <input type="text" id="customerName" name="customerName" required 
+                           style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="customerEmail" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email *</label>
+                    <input type="email" id="customerEmail" name="customerEmail" required 
+                           style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="customerPhone" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Phone Number *</label>
+                    <input type="tel" id="customerPhone" name="customerPhone" required 
+                           style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="customerAddress" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Delivery Address *</label>
+                    <textarea id="customerAddress" name="customerAddress" rows="4" required 
+                              style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; resize: vertical;"></textarea>
+                </div>
+
+                <div id="order-summary" style="background: #f5f5f5; padding: 1.5rem; border-radius: 5px; margin-bottom: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem;">Order Summary</h3>
+                    <div id="summary-items"></div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+                        <strong style="font-size: 1.2rem;">Total: $<span id="summary-total">0.00</span></strong>
+                    </div>
+                </div>
+
+                <button type="submit" class="order-btn" style="width: 100%; padding: 1rem; font-size: 1.1rem;">Place Order</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script src="/js/cart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        displayOrderSummary();
+    });
+
+    function submitOrder(event) {
+        event.preventDefault();
+        
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) {
+            alert('Your cart is empty!');
+            return;
+        }
+
+        const formData = {
+            customerName: document.getElementById('customerName').value,
+            customerEmail: document.getElementById('customerEmail').value,
+            customerPhone: document.getElementById('customerPhone').value,
+            customerAddress: document.getElementById('customerAddress').value,
+            items: cart.map(item => ({
+                productId: item.id,
+                quantity: item.quantity
+            }))
+        };
+
+        fetch('/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.removeItem('cart');
+                alert('Order placed successfully! Order ID: ' + data.orderId);
+                window.location.href = '/';
+            } else {
+                alert('Error placing order: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error placing order. Please try again.');
+        });
+    }
+
+    function displayOrderSummary() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const summaryItems = document.getElementById('summary-items');
+        const summaryTotal = document.getElementById('summary-total');
+        
+        if (cart.length === 0) {
+            summaryItems.innerHTML = '<p>No items in cart</p>';
+            summaryTotal.textContent = '0.00';
+            return;
+        }
+
+        let total = 0;
+        summaryItems.innerHTML = cart.map(item => {
+            const itemTotal = item.price * item.quantity;
+            total += itemTotal;
+            return `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>$${itemTotal.toFixed(2)}</span>
+                </div>
+            `;
+        }).join('');
+
+        summaryTotal.textContent = total.toFixed(2);
+    }
+</script>
+</body>
+</html>
+

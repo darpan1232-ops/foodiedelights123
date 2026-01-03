@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - Foodie Delights</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/header', { activePage: 'cart' }) %>
+
+<main>
+    <section class="page-header">
+        <h1>Your Cart</h1>
+        <p>Review your order before checkout</p>
+    </section>
+
+    <div id="cart-container" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+        <div id="cart-items"></div>
+        <div id="cart-summary" style="margin-top: 2rem; text-align: right;">
+            <h2>Total: $<span id="cart-total">0.00</span></h2>
+            <button id="checkout-btn" class="order-btn" style="margin-top: 1rem; padding: 1rem 2rem; font-size: 1.2rem;" onclick="goToCheckout()">Proceed to Checkout</button>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script src="/js/cart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        displayCart();
+    });
+</script>
+</body>
+</html>
+

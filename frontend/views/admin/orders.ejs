@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management - Foodie Delights</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1>Orders Management</h1>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="admin-nav">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/products">Products</a></li>
+                    <li><a href="/admin/orders" class="active">Orders</a></li>
+                </ul>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <h2 style="margin-bottom: 2rem;">All Orders</h2>
+
+        <div class="filter-bar">
+            <label>Filter by Status:</label>
+            <select onchange="window.location.href='/admin/orders?status=' + this.value">
+                <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All Status</option>
+                <option value="pending" <%= selectedStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="confirmed" <%= selectedStatus === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                <option value="preparing" <%= selectedStatus === 'preparing' ? 'selected' : '' %>>Preparing</option>
+                <option value="ready" <%= selectedStatus === 'ready' ? 'selected' : '' %>>Ready</option>
+                <option value="delivered" <%= selectedStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                <option value="cancelled" <%= selectedStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order._id.toString().substring(0, 8) %></td>
+                                <td><%= order.customerName %></td>
+                                <td><%= order.customerEmail %></td>
+                                <td>$<%= order.totalAmount.toFixed(2) %></td>
+                                <td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td>
+                                <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+                                <td><a href="/admin/orders/<%= order._id %>" class="btn btn-sm">View Details</a></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 2rem;">No orders found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+

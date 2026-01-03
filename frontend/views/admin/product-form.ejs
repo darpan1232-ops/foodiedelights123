@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= isEdit ? 'Edit' : 'Add' %> Product - Foodie Delights</title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <div class="admin-header">
+        <div class="admin-header-content">
+            <h1><%= isEdit ? 'Edit Product' : 'Add New Product' %></h1>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="admin-nav">
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/products" class="active">Products</a></li>
+                    <li><a href="/admin/orders">Orders</a></li>
+                </ul>
+                <a href="/admin/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="form-container">
+            <h2><%= isEdit ? 'Edit Product' : 'Add New Product' %></h2>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="error-message"><%= error %></div>
+            <% } %>
+
+            <form method="POST" action="<%= isEdit ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Product Name *</label>
+                    <input type="text" id="name" name="name" value="<%= product ? product.name : '' %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" rows="4" required><%= product ? product.description : '' %></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price ($) *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" value="<%= product ? product.price : '' %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="pizza" <%= product && product.category === 'pizza' ? 'selected' : '' %>>Pizza</option>
+                        <option value="sushi" <%= product && product.category === 'sushi' ? 'selected' : '' %>>Sushi</option>
+                        <option value="desserts" <%= product && product.category === 'desserts' ? 'selected' : '' %>>Desserts</option>
+                        <option value="beverages" <%= product && product.category === 'beverages' ? 'selected' : '' %>>Beverages</option>
+                        <option value="burgers" <%= product && product.category === 'burgers' ? 'selected' : '' %>>Burgers</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Product Image *</label>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label for="image" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Upload Image File:</label>
+                        <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                        <small style="display: block; color: #666; margin-top: 0.3rem;">Supported formats: JPG, PNG, GIF, WEBP (Max 5MB)</small>
+                    </div>
+                    <div id="imagePreview" style="margin: 1rem 0; display: none;">
+                        <img id="preview" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 5px; border: 1px solid #ddd;">
+                    </div>
+                    <div style="text-align: center; margin: 1rem 0; color: #666;">OR</div>
+                    <div>
+                        <label for="imageUrl" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Image URL (Optional):</label>
+                        <input type="url" id="imageUrl" name="imageUrl" value="<%= product && product.imageUrl && !product.imageUrl.startsWith('/uploads/') ? product.imageUrl : '' %>" placeholder="https://example.com/image.jpg">
+                        <small style="display: block; color: #666; margin-top: 0.3rem;">Enter an image URL if you prefer not to upload a file</small>
+                    </div>
+                    <% if (product && product.imageUrl) { %>
+                        <div style="margin-top: 1rem; padding: 1rem; background-color: #f8f9fa; border-radius: 5px;">
+                            <strong>Current Image:</strong><br>
+                            <img src="<%= product.imageUrl.startsWith('/') ? product.imageUrl : product.imageUrl %>" alt="Current" style="max-width: 200px; max-height: 200px; border-radius: 5px; margin-top: 0.5rem; border: 1px solid #ddd;">
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if (isEdit) { %>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="available" <%= product && product.available ? 'checked' : '' %>>
+                            Available
+                        </label>
+                    </div>
+                <% } %>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn"><%= isEdit ? 'Update Product' : 'Add Product' %></button>
+                    <a href="/admin/products" class="btn" style="background-color: #6c757d; text-align: center;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('preview');
+                    const previewDiv = document.getElementById('imagePreview');
+                    preview.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
+
